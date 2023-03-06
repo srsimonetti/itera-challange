@@ -8,6 +8,9 @@ const data = [
   ["Nome Fantasia 7", "99.929.999/0001-99", 45, "02/14/2022", 22000.841],
 ];
 
+const validateRowData = (rowData) =>
+  rowData.find((el) => el === "") === undefined;
+
 var dataWithDelete = data.map((dataRow) => [
   ...dataRow,
   "<button class='deleteButton' >Deletar</button>",
@@ -15,6 +18,7 @@ var dataWithDelete = data.map((dataRow) => [
 
 $(document).ready(function () {
   $("#table").DataTable({
+    responsive: true,
     data: dataWithDelete,
     columns: [
       { title: "Nome da empresa" },
@@ -38,5 +42,47 @@ $(document).ready(function () {
   $("#table").on("click", ".deleteButton", function () {
     var table = $("#table").DataTable();
     table.row($(this).parents("tr")).remove().draw();
+  });
+
+  $("#clear").on("click", function () {
+    var table = $("#table").DataTable();
+    table.clear().draw();
+  });
+
+  $("#export").on("click", function () {
+    var table = $("#table").DataTable();
+    var data = table.rows().data().toArray();
+    var jsonData = JSON.stringify(data);
+    $.ajax({
+      type: "POST",
+      url: "https://httpbin.org/post",
+      contentType: "application/json; charset=utf-8",
+      data: jsonData,
+      dataType: "json",
+      success: function (response) {
+        alert("Enviado com sucesso!");
+      },
+      failure: function (failure) {
+        console.log("Houve uma falha.");
+      },
+      error: function (error) {
+        alert("Houve um erro.");
+      },
+    });
+  });
+
+  $("#addRow").on("click", function () {
+    var table = $("#table").DataTable();
+    const newRowData = $("form")
+      .serializeArray()
+      .map((field) => field.value);
+
+    if (validateRowData(newRowData)) {
+      table.row
+        .add([...newRowData, "<button class='deleteButton' >Deletar</button>"])
+        .draw(false);
+    } else {
+      alert("Informação inválida");
+    }
   });
 });
