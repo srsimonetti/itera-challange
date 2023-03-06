@@ -8,9 +8,14 @@ const data = [
   ["Nome Fantasia 7", "99.929.999/0001-99", 45, "02/14/2022", 22000.841],
 ];
 
+var dataWithDelete = data.map((dataRow) => [
+  ...dataRow,
+  "<button class='deleteButton' >Deletar</button>",
+]);
+
 $(document).ready(function () {
   $("#table").DataTable({
-    data: data,
+    data: dataWithDelete,
     columns: [
       { title: "Nome da empresa" },
       { title: "CNPJ" },
@@ -24,6 +29,14 @@ $(document).ready(function () {
         render: (data) =>
           data.toLocaleString(undefined, { minimumFractionDigits: 2 }),
       },
+      {
+        title: "Delete",
+      },
     ],
+  });
+
+  $("#table").on("click", ".deleteButton", function () {
+    var table = $("#table").DataTable();
+    table.row($(this).parents("tr")).remove().draw();
   });
 });
